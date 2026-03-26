@@ -81,7 +81,6 @@ public class ArchitectureCraftHelper {
 
     /**
      * Send a SetOrientation message to the server via ArchitectureCraft's DataChannel.
-     * Uses reflection to avoid a compile-time dependency on ArchitectureCraft.
      */
     public static void sendOrientationUpdate(int x, int y, int z, byte side, byte turn) {
         try {
@@ -99,8 +98,8 @@ public class ArchitectureCraftHelper {
             dataOut.writeByte(side);
             dataOut.writeByte(turn);
 
-            out.getClass()
-                .getMethod("close")
+            Class<?> channelOutputClass = Class.forName("gcewing.architecture.common.network.ChannelOutput");
+            channelOutputClass.getMethod("close")
                 .invoke(out);
         } catch (Exception e) {
             Reference.logger.error("Failed to send AC orientation update", e);
