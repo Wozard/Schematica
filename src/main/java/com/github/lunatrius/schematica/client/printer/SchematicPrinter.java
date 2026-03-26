@@ -14,6 +14,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -27,6 +28,7 @@ import com.github.lunatrius.schematica.client.printer.registry.PlacementData;
 import com.github.lunatrius.schematica.client.printer.registry.PlacementRegistry;
 import com.github.lunatrius.schematica.client.util.BlockToItemStack;
 import com.github.lunatrius.schematica.client.world.SchematicWorld;
+import com.github.lunatrius.schematica.compat.architecturecraft.ArchitectureCraftHelper;
 import com.github.lunatrius.schematica.handler.ConfigurationHandler;
 import com.github.lunatrius.schematica.proxy.ClientProxy;
 import com.github.lunatrius.schematica.reference.Constants;
@@ -44,6 +46,7 @@ public class SchematicPrinter {
 
     private boolean isEnabled;
     private boolean isPrinting;
+    private boolean currentBlockIsACShape;
 
     private SchematicWorld schematic = null;
     private byte[][][] timeout = null;
@@ -178,8 +181,18 @@ public class SchematicPrinter {
             return false;
         }
 
+        this.currentBlockIsACShape = ArchitectureCraftHelper.isLoaded() && ArchitectureCraftHelper.isShapeBlock(block);
+
         if (placeBlock(world, player, wx, wy, wz, block, metadata, itemStack)) {
             this.timeout[x][y][z] = (byte) ConfigurationHandler.timeout;
+
+            if (this.currentBlockIsACShape) {
+                TileEntity schematicTE = this.schematic.getTileEntity(x, y, z);
+                if (schematicTE != null) {
+                    byte[] orientation = ArchitectureCraftHelper.getOrientationFromTE(schematicTE);
+                    ArchitectureCraftHelper.sendOrientationUpdate(wx, wy, wz, orientation[0], orientation[1]);
+                }
+            }
 
             if (!ConfigurationHandler.placeInstantly) {
                 return true;
@@ -404,6 +417,10 @@ public class SchematicPrinter {
     private int getInventorySlotWithItem(final InventoryPlayer inventory, final ItemStack itemStack) {
         for (int i = 0; i < inventory.mainInventory.length; i++) {
             if (inventory.mainInventory[i] != null && inventory.mainInventory[i].isItemEqual(itemStack)) {
+                if (this.currentBlockIsACShape
+                    && !ArchitectureCraftHelper.areShapeItemStacksEqual(itemStack, inventory.mainInventory[i])) {
+                    continue;
+                }
                 return i;
             }
         }
