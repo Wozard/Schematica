@@ -181,12 +181,10 @@ public class SchematicPrinter {
             return false;
         }
 
-        this.currentBlockIsACShape = ArchitectureCraftHelper.isLoaded() && ArchitectureCraftHelper.isShapeBlock(block);
-
         if (placeBlock(world, player, wx, wy, wz, block, metadata, itemStack)) {
             this.timeout[x][y][z] = (byte) ConfigurationHandler.timeout;
 
-            if (this.currentBlockIsACShape) {
+            if (ArchitectureCraftHelper.isShapeBlock(block)) {
                 TileEntity schematicTE = this.schematic.getTileEntity(x, y, z);
                 if (schematicTE != null) {
                     byte[] orientation = ArchitectureCraftHelper.getOrientationFromTE(schematicTE);

@@ -60,8 +60,7 @@ public class BlockList {
                         continue;
                     }
 
-                    final boolean isACShape = ArchitectureCraftHelper.isLoaded()
-                        && ArchitectureCraftHelper.isShapeBlock(block);
+                    final boolean isACShape = ArchitectureCraftHelper.isShapeBlock(block);
                     final WrappedItemStack wrappedItemStack = findOrCreateWrappedItemStackFor(
                         blockList,
                         stack,

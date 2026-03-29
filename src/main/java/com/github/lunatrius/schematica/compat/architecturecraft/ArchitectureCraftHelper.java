@@ -1,15 +1,10 @@
 package com.github.lunatrius.schematica.compat.architecturecraft;
 
-import java.io.DataOutput;
-import java.lang.reflect.Method;
-
 import net.minecraft.block.Block;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-
-import com.github.lunatrius.schematica.reference.Reference;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameData;
@@ -80,29 +75,9 @@ public class ArchitectureCraftHelper {
     }
 
     /**
-     * Send a SetOrientation message to the server via ArchitectureCraft's DataChannel.
+     * Fix block orientation via ArchitectureCraft's DataChannel.
      */
     public static void sendOrientationUpdate(int x, int y, int z, byte side, byte turn) {
-        try {
-            Class<?> acClass = Class.forName("gcewing.architecture.ArchitectureCraft");
-            Object channel = acClass.getField("channel")
-                .get(null);
-            Method openServer = channel.getClass()
-                .getMethod("openServer", String.class);
-            Object out = openServer.invoke(channel, "SetOrientation");
-
-            DataOutput dataOut = (DataOutput) out;
-            dataOut.writeInt(x);
-            dataOut.writeInt(y);
-            dataOut.writeInt(z);
-            dataOut.writeByte(side);
-            dataOut.writeByte(turn);
-
-            Class<?> channelOutputClass = Class.forName("gcewing.architecture.common.network.ChannelOutput");
-            channelOutputClass.getMethod("close")
-                .invoke(out);
-        } catch (Exception e) {
-            Reference.logger.error("Failed to send AC orientation update", e);
-        }
+        ArchitectureCraftBridge.sendOrientationUpdate(x, y, z, side, turn);
     }
 }
