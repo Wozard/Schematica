@@ -241,6 +241,8 @@ public class SchematicPrinter {
 
     private boolean placeBlock(World world, EntityPlayer player, int x, int y, int z, Block block, int metadata,
         ItemStack itemStack) {
+        this.currentBlockIsACShape = ArchitectureCraftHelper.isShapeBlock(block);
+
         if (isBlacklisted(block, itemStack)) {
             return false;
         }
